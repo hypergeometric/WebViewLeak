@@ -1,49 +1,40 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow
- */
+import React, { Component } from 'react';
+import { View, Text } from 'react-native';
+import { WebView } from 'react-native-webview';
 
-import React, {Component} from 'react';
-import {Platform, StyleSheet, Text, View} from 'react-native';
+export default class App extends Component {
+  state = { messageCount: 0 };
 
-const instructions = Platform.select({
-  ios: 'Press Cmd+R to reload,\n' + 'Cmd+D or shake for dev menu',
-  android:
-    'Double tap R on your keyboard to reload,\n' +
-    'Shake or press menu button for dev menu',
-});
-
-type Props = {};
-export default class App extends Component<Props> {
   render() {
+    const html = `
+      <html>
+      <head></head>
+      <body>
+        <script>
+          const message = "Hello!".repeat(1000000);
+          setInterval(function () {
+            window.ReactNativeWebView.postMessage(message);
+          }, 1000);
+        </script>
+      </body>
+      </html>
+    `;
+
     return (
-      <View style={styles.container}>
-        <Text style={styles.welcome}>Welcome to React Native!</Text>
-        <Text style={styles.instructions}>To get started, edit App.js</Text>
-        <Text style={styles.instructions}>{instructions}</Text>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <View style={{ height: 0 }}>
+          <WebView
+            originWhitelist={['*']}
+            source={{ html }}
+            onMessage={() => {
+              this.setState(state => ({
+                messageCount: state.messageCount + 1
+              }));
+            }}
+          />
+        </View>
+        <Text style={{ fontSize: 20 }}>{this.state.messageCount}</Text>
       </View>
     );
   }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
-  },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
-  },
-});
